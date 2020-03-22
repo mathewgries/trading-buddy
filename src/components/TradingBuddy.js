@@ -25,7 +25,7 @@ class TradingBuddy extends Component {
         return (
             <div>
                 <form onSubmit={this.handleGoalBalance}>
-                    <h4>Balances</h4>
+                    <h4>Earning Goal</h4>
                     <hr />
                     <div className='flex-form'>
                         <AccountBalance />
@@ -46,6 +46,7 @@ class TradingBuddy extends Component {
                 </form>
                 <hr />
                 <div>
+                    <h4>Calculate Position</h4>
                     <StockInput />
                 </div>
             </div>
