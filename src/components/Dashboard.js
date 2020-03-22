@@ -4,8 +4,6 @@ import { Link } from 'react-router-dom'
 export default function Dashboard() {
     return (
         <div>
-            <input type="text"/>
-            <input type="number"/>
             <div>
                 <Link to='/growthCalculator'>
                     Growth Calculator
