@@ -72,7 +72,7 @@ class StockInput extends Component {
                 this.setFundsField(stockPrice * value)
             }
         }
-        dispatch(updateShares(value))
+        dispatch(updateShares(Math.floor(value)))
         if (value > 0) {
             this.setTakeProfit(value)
         }
