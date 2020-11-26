@@ -13,6 +13,7 @@ class ShowData extends Component {
             symbol: '',
             details: {},
             aggData: {},
+            gainPercent: 5,
             movers: [],
             database: [],
             detailToggle: false,
@@ -41,11 +42,22 @@ class ShowData extends Component {
 
     handleChange = async (e) => {
         const { name, value } = e.target
-        this.setState({
-            [name]: value,
-            details: await this.getStockDetails(value),
-            aggdata: database.filter((sym) => sym.ticker === value)
-        })
+        if (name === 'symbol') {
+            const openTicker = database.filter((sym) => sym.ticker === value)
+            this.setState({
+                [name]: value,
+                details: await this.getStockDetails(value),
+                aggData: openTicker[0],
+                movers: this.setMovers(openTicker[0].results)
+            })
+        } else {
+            const { aggData } = this.state
+            this.setState({
+                [name]: value,
+                movers: this.setMovers(aggData.results)
+            })
+        }
+
     }
 
     handleToggle = (e) => {
@@ -69,9 +81,9 @@ class ShowData extends Component {
     }
 
     setMovers = (data) => {
+        const { gainPercent } = this.state
         let matches = []
-
-        data.map((value, index, elements) => {
+        data.forEach((value, index, elements) => {
             if (elements.length - 1 !== index) {
                 const current = elements[index]
                 const next = elements[index + 1]
@@ -80,9 +92,8 @@ class ShowData extends Component {
                 const hod = parseFloat(next.h)
                 const perCalc = ((hod - close) / close) * 100
 
-                if (perCalc >= 5) {
-                    const match = { close: current, hod: next }
-                    matches.push(match)
+                if (perCalc >= gainPercent) {
+                    matches.push({ close: current, hod: next })
                 }
             }
         })
@@ -90,7 +101,16 @@ class ShowData extends Component {
     }
 
     render() {
-        const { symbol, details, detailToggle, aggData, aggDataToggle, movers, moversToggle } = this.state
+        const {
+            symbol,
+            details,
+            detailToggle,
+            aggData,
+            aggDataToggle,
+            movers,
+            moversToggle,
+            gainPercent
+        } = this.state
 
         if (symbol === '') {
             return <div>Loading...</div>
@@ -116,6 +136,17 @@ class ShowData extends Component {
                                 </option>
                             )}
                         </select>
+                    </div>
+                    <div className='form-group'>
+                        <label>Aggregate Span</label>
+                        <input
+                            className='form-control'
+                            type='number'
+                            name={'gainPercent'}
+                            value={gainPercent}
+                            min={1}
+                            onChange={this.handleChange}
+                        />
                     </div>
                     <div className='form-group'>
                         <button
