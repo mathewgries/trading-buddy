@@ -5,13 +5,13 @@ export default function Dashboard() {
     return (
         <div>
             <div>
-                <Link to='/growthCalculator'>
-                    Growth Calculator
+                <Link to='/getdata'>
+                    Get Data
                 </Link>
             </div>
             <div>
-                <Link to='/tradingBuddy'>
-                    Trading Budding
+                <Link to='/showdata'>
+                    Show Data
                 </Link>
             </div>
         </div>
