@@ -12,10 +12,12 @@ class ShowData extends Component {
         this.state = {
             symbol: '',
             details: {},
+            aggData: {},
+            movers: [],
+            database: [],
             detailToggle: false,
             aggDataToggle: false,
-            aggData: [],
-            database: []
+            moversToggle: false
         }
     }
 
@@ -26,28 +28,15 @@ class ShowData extends Component {
             const { ticker } = sym
             return { value: ticker, label: ticker }
         })
+
+        const openTicker = database.filter((sym) => sym.ticker === this.options[0].value)
         this.setState({
             database: database,
             symbol: this.options[0].value,
             details: await this.getStockDetails(this.options[0].value),
-            aggData: database.filter((sym) => sym.ticker === this.options[0].value)
+            aggData: openTicker[0],
+            movers: this.setMovers(openTicker[0].results)
         })
-    }
-
-    showDetails = () => {
-        this.setState((prevState) => ({
-            detailToggle: !prevState.detailToggle
-        }))
-    }
-
-    showData = () => {
-        this.setState((prevState) => ({
-            aggDataToggle: !prevState.aggDataToggle
-        }))
-    }
-
-    getStockDetails = async (sym) => {
-        return await getDetails(sym)
     }
 
     handleChange = async (e) => {
@@ -59,6 +48,17 @@ class ShowData extends Component {
         })
     }
 
+    handleToggle = (e) => {
+        const { name } = e.target
+        this.setState((prevState) => ({
+            [name]: !prevState[name]
+        }))
+    }
+
+    getStockDetails = async (sym) => {
+        return await getDetails(sym)
+    }
+
     getAggData = () => {
         const { aggData } = this.state
         return (
@@ -68,8 +68,29 @@ class ShowData extends Component {
         )
     }
 
+    setMovers = (data) => {
+        let matches = []
+
+        data.map((value, index, elements) => {
+            if (elements.length - 1 !== index) {
+                const current = elements[index]
+                const next = elements[index + 1]
+
+                const close = parseFloat(current.c)
+                const hod = parseFloat(next.h)
+                const perCalc = ((hod - close) / close) * 100
+
+                if (perCalc >= 5) {
+                    const match = { close: current, hod: next }
+                    matches.push(match)
+                }
+            }
+        })
+        return matches
+    }
+
     render() {
-        const { symbol, details, detailToggle, aggData, aggDataToggle } = this.state
+        const { symbol, details, detailToggle, aggData, aggDataToggle, movers, moversToggle } = this.state
 
         if (symbol === '') {
             return <div>Loading...</div>
@@ -100,7 +121,8 @@ class ShowData extends Component {
                         <button
                             className='btn btn-primary'
                             type='submit'
-                            onClick={this.showDetails}
+                            name={'detailToggle'}
+                            onClick={this.handleToggle}
                         >
                             {!detailToggle ? 'Show Details' : 'Hide Details'}
                         </button>
@@ -108,9 +130,18 @@ class ShowData extends Component {
                         <button
                             className='btn btn-success'
                             type='submit'
-                            onClick={this.showData}
+                            name={'aggDataToggle'}
+                            onClick={this.handleToggle}
                         >
                             {!aggDataToggle ? 'Show Data' : 'Hide Data'}
+                        </button>
+                        <button
+                            className='btn btn-info'
+                            type='submit'
+                            name={'moversToggle'}
+                            onClick={this.handleToggle}
+                        >
+                            {!moversToggle ? 'Show Movers' : 'Hide Movers'}
                         </button>
                     </div>
                     <div>
@@ -118,6 +149,9 @@ class ShowData extends Component {
                     </div>
                     <div>
                         {aggDataToggle ? <pre>{JSON.stringify(aggData, null, 2)}</pre> : null}
+                    </div>
+                    <div>
+                        {moversToggle ? <pre>{JSON.stringify(movers, null, 2)}</pre> : null}
                     </div>
                 </div>
             </div>
