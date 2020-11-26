@@ -84,19 +84,35 @@ class ShowData extends Component {
         const { gainPercent } = this.state
         let matches = []
         data.forEach((value, index, elements) => {
-            if (elements.length - 1 !== index) {
+            if (index < elements.length - 1) {
                 const current = elements[index]
                 const next = elements[index + 1]
 
                 const close = parseFloat(current.c)
                 const hod = parseFloat(next.h)
                 const perCalc = ((hod - close) / close) * 100
+                const volDiff = next.v - current.v
+                const vwDiff = next.vw - current.vw
+                const closeData = new Date(current.t).toLocaleString()
+                const hodDate = new Date(next.t).toLocaleString()
+                const priceChange = next.c - current.c
 
                 if (perCalc >= gainPercent) {
-                    matches.push({ close: current, hod: next })
+                    matches.push({ 
+                        close: current, 
+                        hod: next,
+                        compare: {
+                            closeData,
+                            hodDate,
+                            priceChange,
+                            volDiff,
+                            vwDiff
+                        }
+                    })
                 }
             }
         })
+        matches.pop()
         return matches
     }
 
