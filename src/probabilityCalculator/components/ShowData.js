@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import database from '../../data'
-import { getDetails, getData } from '../../api/get.js'
+import { getDetails } from '../../api/get.js'
 
 // const milliseconds = 1577941200000
 // const dateObject = new Date(milliseconds)
@@ -22,9 +22,9 @@ class ShowData extends Component {
     options = []
 
     componentDidMount = async () => {
-        database.map((sym) => {
+        this.options = database.map((sym) => {
             const { ticker } = sym
-            this.options = this.options.concat({ value: ticker, label: ticker })
+            return { value: ticker, label: ticker }
         })
         this.setState({
             database: database,
@@ -69,7 +69,7 @@ class ShowData extends Component {
     }
 
     render() {
-        const { symbol, details, detailToggle, aggData, aggDataToggle, database } = this.state
+        const { symbol, details, detailToggle, aggData, aggDataToggle } = this.state
 
         if (symbol === '') {
             return <div>Loading...</div>

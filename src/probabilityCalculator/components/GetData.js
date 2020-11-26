@@ -30,11 +30,8 @@ class GetData extends Component {
     }
 
     handleGetData = async () => {
-        const { ticker, startDate, endDate } = this.state
         const response = await getData(this.state)
-        this.setState((prevState) => ({
-            data: response
-        }))
+        this.setState({data: response})
     }
 
     diableGetData(){
