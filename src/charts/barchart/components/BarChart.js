@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import 'C:/Users/mgries/OneDrive/personal/proj/stock-budgets/node_modules/react-vis/dist/style.css';
+import '../../../../node_modules/react-vis/dist/style.css';
 import { XYPlot, XAxis, YAxis, HorizontalGridLines, LineSeries } from 'react-vis';
 
 

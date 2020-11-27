@@ -94,12 +94,12 @@ class ShowData extends Component {
     getAverageVolume = (data) => {
         let sum = 0
         let count = 0
-        data.forEach(({v}) => {
+        data.forEach(({ v }) => {
             sum += v
             count++
         })
-        return Math.ceil(sum/count)
-        
+        return Math.ceil(sum / count)
+
     }
 
     setMovers = (data, averageVolume) => {
@@ -128,14 +128,14 @@ class ShowData extends Component {
                         vol: elements[index - 4].v,
                         aveVolDiff: elements[index - 4].v - averageVolume,
                         volDiff: elements[index - 4].v - elements[index - 5].v,
-                        priceDiff: elements[index - 4].h -  elements[index - 5].h,
+                        priceDiff: elements[index - 4].h - elements[index - 5].h,
                         date: new Date(elements[index - 4].t).toLocaleString()
                     },
                     {
                         vol: elements[index - 3].v,
                         aveVolDiff: elements[index - 3].v - averageVolume,
                         volDiff: elements[index - 3].v - elements[index - 4].v,
-                        priceDiff: elements[index - 3].h -  elements[index - 4].h,
+                        priceDiff: elements[index - 3].h - elements[index - 4].h,
                         date: new Date(elements[index - 3].t).toLocaleString()
                     },
                     {
@@ -255,16 +255,19 @@ class ShowData extends Component {
                         </button>
                     </div>
                     <div>
-                        {detailToggle ? <pre>{JSON.stringify(details, null, 2)}</pre> : null}
+                        <p>Average Vol: {averageVolume}</p>
+                        <p>Marketcap: {marketcap}</p>
+                        <p>Match Count: {movers.length}</p>
                     </div>
-                    <div>
-                        {aggDataToggle ? <pre>{JSON.stringify(aggData, null, 2)}</pre> : null}
-                    </div>
+                    <BarChart
+                        data={movers}
+                    />
                     <div>
                         <div>
-                            <p>Average Vol: {averageVolume}</p>
-                            <p>Marketcap: {marketcap}</p>
-                            <p>Match Count: {movers.length}</p>
+                            {detailToggle ? <pre>{JSON.stringify(details, null, 2)}</pre> : null}
+                        </div>
+                        <div>
+                            {aggDataToggle ? <pre>{JSON.stringify(aggData, null, 2)}</pre> : null}
                         </div>
                         <div>
                             {moversToggle ? <pre>{JSON.stringify(movers, null, 2)}</pre> : null}
