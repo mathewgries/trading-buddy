@@ -11,7 +11,7 @@ export async function getDetails(ticker){
 
 export async function getData(data){
     const {ticker, multiplier, timespan, startDate, endDate } = data
-    const req = '/v2/aggs/ticker/'+ticker+'/range/'+multiplier+'/'+timespan+'/'+startDate+'/'+endDate+'?sort=asc&limit=100&'
+    const req = '/v2/aggs/ticker/'+ticker+'/range/'+multiplier+'/'+timespan+'/'+startDate+'/'+endDate+'?sort=asc&limit=5000&'
     console.log(req)
     return await requestHandler(req)
 }

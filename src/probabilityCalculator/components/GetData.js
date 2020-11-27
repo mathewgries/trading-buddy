@@ -11,7 +11,10 @@ class GetData extends Component {
             timespan: 'minute',
             startDate: '',
             endDate: '',
+            resultCount: 0,
             details: {},
+            toggleDetails: false,
+            toggleData: false,
             data: []
         }
     }
@@ -20,22 +23,58 @@ class GetData extends Component {
 
     handleChange = (e) => {
         const { value, name } = e.target
-        this.setState({ [name]: value })
+        this.setState({
+            [name]: value,
+            toggleDetails: false,
+            toggleData: false
+        })
     }
 
-    getStockDetails = async () => {
-        const { ticker } = this.state
-        const response = await getDetails(ticker)
-        this.setState({ details: response })
+    handleToggle = (e) => {
+        const { name } = e.target
+        this.setState((prevState) => ({
+            [name]: !prevState[name]
+        }))
+    }
+
+    handleGetDetails = async () => {
+        const { details, ticker } = this.state
+        if (details.symbol === ticker) {
+            this.setState((prevState) => ({
+                toggleDetails: !prevState.toggleDetails
+            }))
+        } else if (details.symbol !== ticker) {
+            const response = await getDetails(ticker)
+            this.setState({
+                details: response,
+                toggleDetails: true
+            })
+        }
     }
 
     handleGetData = async () => {
-        const response = await getData(this.state)
-        this.setState({data: response})
+        const { data, ticker } = this.state
+        if (data.ticker === ticker) {
+            this.setState((prevState) => ({
+                toggleData: !prevState.toggleData
+            }))
+        } else if (data.ticker !== ticker) {
+            const response = await getData(this.state)
+            this.setState({
+                data: response,
+                resultCount: response.results.length,
+                toggleData: true
+            })
+        }
+        // const response = await getData(this.state)
+        // this.setState({
+        //     data: response,
+        //     resultCount: response.results.length
+        // })
     }
 
-    diableGetData(){
-        const {ticker, startDate, endDate } = this.state
+    diableGetData() {
+        const { ticker, startDate, endDate } = this.state
         return (
             (ticker === '' || startDate === '' || endDate === '') ||
             (startDate > endDate)
@@ -43,7 +82,20 @@ class GetData extends Component {
     }
 
     render() {
-        const { ticker, details, startDate, endDate, timespan, multiplier, data } = this.state
+
+        const {
+            ticker,
+            details,
+            startDate,
+            endDate,
+            timespan,
+            multiplier,
+            data,
+            resultCount,
+            toggleDetails,
+            toggleData
+        } = this.state
+
         return (
             <div>
                 <div className='data-fields'>
@@ -111,10 +163,11 @@ class GetData extends Component {
                     <button
                         className='btn btn-primary'
                         type='submit'
-                        onClick={this.getStockDetails}
+                        name='toggleDetails'
+                        onClick={this.handleGetDetails}
                         disabled={ticker === '' ? true : false}
                     >
-                        Get Details
+                        {toggleDetails ? 'Hide Details' : 'Show Details'}
                     </button>
                     <button
                         className='btn btn-success'
@@ -122,11 +175,18 @@ class GetData extends Component {
                         onClick={this.handleGetData}
                         disabled={this.diableGetData() ? true : false}
                     >
-                        Get Data
+                        {toggleData ? 'Hide Data' : 'Show Data'}
                     </button>
                 </div>
-                <pre>{JSON.stringify(details, null, 2)}</pre>
-                <pre>{JSON.stringify(data, null, 2)}</pre>
+                <div>
+                    <p>Results: {resultCount}</p>
+                </div>
+                <div>
+                    {toggleDetails ? <pre>{JSON.stringify(details, null, 2)}</pre> : null}
+                </div>
+                <div>
+                    {toggleData ? <pre>{JSON.stringify(data, null, 2)}</pre> : null}
+                </div>
             </div>
         )
     }

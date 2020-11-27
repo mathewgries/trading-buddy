@@ -12,6 +12,8 @@ class ShowData extends Component {
         this.state = {
             symbol: '',
             details: {},
+            marketcap: null,
+            averageVolume: null,
             aggData: {},
             gainPercent: 5,
             movers: [],
@@ -31,12 +33,16 @@ class ShowData extends Component {
         })
 
         const openTicker = database.filter((sym) => sym.ticker === this.options[0].value)
+        const details = await this.getStockDetails(this.options[0].value)
+        const averageVolume = this.getAverageVolume(openTicker[0].results)
         this.setState({
             database: database,
             symbol: this.options[0].value,
-            details: await this.getStockDetails(this.options[0].value),
+            details,
+            marketcap: details.marketcap,
+            averageVolume,
             aggData: openTicker[0],
-            movers: this.setMovers(openTicker[0].results)
+            movers: this.setMovers(openTicker[0].results, averageVolume)
         })
     }
 
@@ -44,17 +50,21 @@ class ShowData extends Component {
         const { name, value } = e.target
         if (name === 'symbol') {
             const openTicker = database.filter((sym) => sym.ticker === value)
+            const details = await this.getStockDetails(this.options[0].value)
+            const averageVolume = this.getAverageVolume(openTicker[0].results)
             this.setState({
                 [name]: value,
-                details: await this.getStockDetails(value),
+                details,
+                marketcap: details.marketcap,
+                averageVolume,
                 aggData: openTicker[0],
-                movers: this.setMovers(openTicker[0].results)
+                movers: this.setMovers(openTicker[0].results, averageVolume)
             })
         } else {
-            const { aggData } = this.state
+            const { aggData, averageVolume } = this.state
             this.setState({
                 [name]: value,
-                movers: this.setMovers(aggData.results)
+                movers: this.setMovers(aggData.results, averageVolume)
             })
         }
 
@@ -80,7 +90,18 @@ class ShowData extends Component {
         )
     }
 
-    setMovers = (data) => {
+    getAverageVolume = (data) => {
+        let sum = 0
+        let count = 0
+        data.forEach(({v}) => {
+            sum += v
+            count++
+        })
+        return Math.ceil(sum/count)
+        
+    }
+
+    setMovers = (data, averageVolume) => {
         const { gainPercent } = this.state
         let matches = []
         data.forEach((value, index, elements) => {
@@ -92,53 +113,60 @@ class ShowData extends Component {
                 const perCalc = ((hod - close) / close) * 100
                 const volDiff = next.v - current.v
                 const vwDiff = next.vw - current.vw
+                const volAveDiff = next.v - averageVolume
                 const closeData = new Date(current.t).toLocaleString()
                 const hodDate = new Date(next.t).toLocaleString()
                 const priceChange = next.c - current.c
                 const prevVolume = [
                     {
                         vol: elements[index - 5].v,
-                        volDiff: next.v - elements[index - 5].v,
-                        priceDiff: next.h - elements[index - 5].h,
+                        aveVolDiff: elements[index - 5].v - averageVolume,
                         date: new Date(elements[index - 5].t).toLocaleString()
                     },
                     {
                         vol: elements[index - 4].v,
-                        volDiff: next.v - elements[index - 4].v,
-                        priceDiff: next.h - elements[index - 4].h,
+                        aveVolDiff: elements[index - 4].v - averageVolume,
+                        volDiff: elements[index - 4].v - elements[index - 5].v,
+                        priceDiff: elements[index - 4].h -  elements[index - 5].h,
                         date: new Date(elements[index - 4].t).toLocaleString()
                     },
                     {
                         vol: elements[index - 3].v,
-                        volDiff: next.v - elements[index - 3].v,
-                        priceDiff: next.h - elements[index - 3].h,
+                        aveVolDiff: elements[index - 3].v - averageVolume,
+                        volDiff: elements[index - 3].v - elements[index - 4].v,
+                        priceDiff: elements[index - 3].h -  elements[index - 4].h,
                         date: new Date(elements[index - 3].t).toLocaleString()
                     },
                     {
                         vol: elements[index - 2].v,
-                        volDiff: next.v - elements[index - 2].v,
-                        priceDiff: next.h - elements[index - 2].h,
+                        aveVolDiff: elements[index - 2].v - averageVolume,
+                        volDiff: elements[index - 2].v - elements[index - 3].v,
+                        priceDiff: elements[index - 2].h - elements[index - 3].h,
                         date: new Date(elements[index - 2].t).toLocaleString()
                     },
                     {
                         vol: elements[index - 1].v,
-                        volDiff: next.v - elements[index - 1].v,
-                        priceDiff: next.h - elements[index - 1].h,
+                        aveVolDiff: elements[index - 1].v - averageVolume,
+                        volDiff: elements[index - 1].v - elements[index - 2].v,
+                        priceDiff: elements[index - 1].h - elements[index - 2].h,
                         date: new Date(elements[index - 1].t).toLocaleString()
                     }
                 ]
 
                 if (perCalc >= gainPercent) {
                     matches.push({
-                        close: current,
-                        hod: next,
+                        close: current.c,
+                        hod: next.h,
+                        closeData: new Date(current.t).toLocaleString(),
+                        hodDate: new Date(next.t).toLocaleString(),
                         compare: {
                             closeData,
                             hodDate,
+                            volAveDiff,
                             priceChange,
                             volDiff,
                             vwDiff,
-                            prevVolume
+                            prevVolume,
                         }
                     })
                 }
@@ -152,6 +180,8 @@ class ShowData extends Component {
         const {
             symbol,
             details,
+            marketcap,
+            averageVolume,
             detailToggle,
             aggData,
             aggDataToggle,
@@ -231,6 +261,8 @@ class ShowData extends Component {
                     </div>
                     <div>
                         <div>
+                            <p>Average Vol: {averageVolume}</p>
+                            <p>Marketcap: {marketcap}</p>
                             <p>Match Count: {movers.length}</p>
                         </div>
                         <div>
