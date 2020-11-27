@@ -6,6 +6,7 @@ class GetData extends Component {
     constructor(props) {
         super(props)
         this.state = {
+            rateLimit: false,
             ticker: '',
             multiplier: '1',
             timespan: 'minute',
@@ -14,7 +15,6 @@ class GetData extends Component {
             resultCount: 0,
             details: {},
             toggleDetails: false,
-            toggleData: false,
             data: []
         }
     }
@@ -25,16 +25,8 @@ class GetData extends Component {
         const { value, name } = e.target
         this.setState({
             [name]: value,
-            toggleDetails: false,
-            toggleData: false
+            toggleDetails: false
         })
-    }
-
-    handleToggle = (e) => {
-        const { name } = e.target
-        this.setState((prevState) => ({
-            [name]: !prevState[name]
-        }))
     }
 
     handleGetDetails = async () => {
@@ -45,32 +37,33 @@ class GetData extends Component {
             }))
         } else if (details.symbol !== ticker) {
             const response = await getDetails(ticker)
-            this.setState({
-                details: response,
-                toggleDetails: true
-            })
+            if (response.status === 'ERROR') {
+                this.setState({ rateLimit: true })
+            } else {
+                this.setState({
+                    details: response,
+                    toggleDetails: true
+                })
+            }
         }
     }
 
     handleGetData = async () => {
-        const { data, ticker } = this.state
-        if (data.ticker === ticker) {
-            this.setState((prevState) => ({
-                toggleData: !prevState.toggleData
-            }))
-        } else if (data.ticker !== ticker) {
-            const response = await getData(this.state)
+        const response = await getData(this.state)
+        if (response.status === 'ERROR') {
+            this.setState({ rateLimit: true })
+        } else {
             this.setState({
+                rateLimit: false,
                 data: response,
-                resultCount: response.results.length,
-                toggleData: true
+                resultCount: response.results.length
             })
         }
-        // const response = await getData(this.state)
-        // this.setState({
-        //     data: response,
-        //     resultCount: response.results.length
-        // })
+
+    }
+
+    handleRateLimit = () => {
+
     }
 
     diableGetData() {
@@ -84,6 +77,7 @@ class GetData extends Component {
     render() {
 
         const {
+            rateLimit,
             ticker,
             details,
             startDate,
@@ -92,13 +86,16 @@ class GetData extends Component {
             multiplier,
             data,
             resultCount,
-            toggleDetails,
-            toggleData
+            toggleDetails
         } = this.state
 
         return (
             <div>
+                <div>
+                    {rateLimit ? <div className='text-danger'>Rate Limit Exceeded</div> : null}
+                </div>
                 <div className='data-fields'>
+
                     <div className='form-group'>
                         <label>Symbol</label>
                         <input
@@ -175,7 +172,7 @@ class GetData extends Component {
                         onClick={this.handleGetData}
                         disabled={this.diableGetData() ? true : false}
                     >
-                        {toggleData ? 'Hide Data' : 'Show Data'}
+                        Show Data
                     </button>
                 </div>
                 <div>
@@ -185,7 +182,7 @@ class GetData extends Component {
                     {toggleDetails ? <pre>{JSON.stringify(details, null, 2)}</pre> : null}
                 </div>
                 <div>
-                    {toggleData ? <pre>{JSON.stringify(data, null, 2)}</pre> : null}
+                    {<pre>{JSON.stringify(data, null, 2)}</pre>}
                 </div>
             </div>
         )

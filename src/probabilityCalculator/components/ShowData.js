@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import database from '../../data'
 import { getDetails } from '../../api/get.js'
+import BarChart from '../../charts/barchart/components/BarChart'
 
 // const milliseconds = 1577941200000
 // const dateObject = new Date(milliseconds)
