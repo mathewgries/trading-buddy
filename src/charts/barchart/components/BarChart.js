@@ -17,7 +17,7 @@ class BarChart extends Component {
 
 
     render() {
-        const { data } = this.state
+        const { data, averageVolume } = this.props
         console.log(data)
         return (
             <div>
@@ -129,6 +129,21 @@ class BarChart extends Component {
                                 return {
                                     x: (val.closeDate).substring(0, (val.closeDate).indexOf(',')),
                                     y: val.hodVolume
+                                }
+                            })
+                        }
+                    />
+                    <VerticalBarSeries
+                        // cluster={'close'}
+                        barWidth={0.5}
+                        stroke={'blue'}
+                        opacity={0.75}
+                        fill={'#122c75'}
+                        data={
+                            data.map((val) => {
+                                return {
+                                    x: (val.closeDate).substring(0, (val.closeDate).indexOf(',')),
+                                    y: averageVolume
                                 }
                             })
                         }

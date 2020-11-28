@@ -273,7 +273,7 @@ class ShowData extends Component {
                     </div>
                     <div>
                         <div>
-                            {chartToggle ? <BarChart data={movers} /> : null}
+                            {chartToggle ? <BarChart data={movers} averageVolume={averageVolume}/> : null}
                         </div>
                         <div>
                             {detailToggle ? <pre>{JSON.stringify(details, null, 2)}</pre> : null}
