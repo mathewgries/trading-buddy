@@ -10,6 +10,5 @@ export async function getDetails(ticker){
 export async function getChartData(data){
     const {ticker, multiplier, timespan, startDate, endDate } = data
     const req = '/v2/aggs/ticker/'+ticker+'/range/'+multiplier+'/'+timespan+'/'+startDate+'/'+endDate+'?sort=asc&limit=50000&'
-    console.log(req)
     return await requestHandler(req)
 }
