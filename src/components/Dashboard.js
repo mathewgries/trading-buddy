@@ -15,11 +15,6 @@ export default function Dashboard() {
                     Show Data
                 </Link>
             </div>
-            <div>
-            <Link to='/barchart'>
-                    Bar Chart
-                </Link>
-            </div>
         </div>
     )
 }
