@@ -21,7 +21,8 @@ class ShowData extends Component {
             database: [],
             detailToggle: false,
             aggDataToggle: false,
-            moversToggle: false
+            moversToggle: false,
+            chartToggle: false,
         }
     }
 
@@ -115,7 +116,7 @@ class ShowData extends Component {
                 const volDiff = next.v - current.v
                 const vwDiff = next.vw - current.vw
                 const volAveDiff = next.v - averageVolume
-                const closeData = new Date(current.t).toLocaleString()
+                const closeDate = new Date(current.t).toLocaleString()
                 const hodDate = new Date(next.t).toLocaleString()
                 const priceChange = next.c - current.c
                 const prevVolume = [
@@ -158,16 +159,18 @@ class ShowData extends Component {
                     matches.push({
                         close: current.c,
                         hod: next.h,
-                        closeData: new Date(current.t).toLocaleString(),
+                        closeVolume: current.v,
+                        hodVolume: next.v,
+                        closeDate: new Date(current.t).toLocaleString(),
                         hodDate: new Date(next.t).toLocaleString(),
+                        prevVolume,
                         compare: {
-                            closeData,
+                            closeDate,
                             hodDate,
                             volAveDiff,
                             priceChange,
                             volDiff,
                             vwDiff,
-                            prevVolume,
                         }
                     })
                 }
@@ -183,12 +186,13 @@ class ShowData extends Component {
             details,
             marketcap,
             averageVolume,
-            detailToggle,
             aggData,
-            aggDataToggle,
+            gainPercent,
             movers,
+            detailToggle,
+            aggDataToggle,
             moversToggle,
-            gainPercent
+            chartToggle,
         } = this.state
 
         if (symbol === '') {
@@ -253,16 +257,24 @@ class ShowData extends Component {
                         >
                             {!moversToggle ? 'Show Movers' : 'Hide Movers'}
                         </button>
+                        <button
+                            className='btn btn-info'
+                            type='submit'
+                            name={'chartToggle'}
+                            onClick={this.handleToggle}
+                        >
+                            {!chartToggle ? 'Show Chart' : 'Hide Chart'}
+                        </button>
                     </div>
                     <div>
                         <p>Average Vol: {averageVolume}</p>
                         <p>Marketcap: {marketcap}</p>
                         <p>Match Count: {movers.length}</p>
                     </div>
-                    <BarChart
-                        data={movers}
-                    />
                     <div>
+                        <div>
+                            {chartToggle ? <BarChart data={movers} /> : null}
+                        </div>
                         <div>
                             {detailToggle ? <pre>{JSON.stringify(details, null, 2)}</pre> : null}
                         </div>
