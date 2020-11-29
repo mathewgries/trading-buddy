@@ -3,7 +3,7 @@ export const LOAD_CHART_DATA = 'LOAD_CHART_DATA'
 
 
 export function handleLoadChartData(requestParams){
-    return async (dispatch, getState) => {
+    return async (dispatch) => {
         return await getChartData(requestParams)
         .then((chartData) => dispatch(loadChartData(chartData)))
     }

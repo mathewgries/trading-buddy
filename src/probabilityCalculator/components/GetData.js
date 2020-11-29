@@ -1,6 +1,8 @@
-import React, { useState } from 'react'
-import { connect } from 'react-redux'
-import { handleLoadChartData } from '../../redux/probabilityCalculator/actions/chartData'
+import React, { useState, useEffect } from 'react'
+// import { connect } from 'react-redux'
+import { getChartData } from '../../api/get.js'
+// import { handleLoadChartData } from '../../redux/probabilityCalculator/actions/chartData'
+import CandleStickChart from '../../charts/CandleStickChart'
 
 import '../style.css'
 
@@ -13,7 +15,8 @@ const getCurrentDate = (date, sub = 0) => {
     return '' + y + '-' + (m <= 9 ? '0' + m : m) + '-' + (d <= 9 ? '0' + d : d)
 }
 
-const GetData = (props) => {
+const GetData = () => {
+    const [loading, setLoading] = useState(true)
     const [userInput, setUserInput] = useState({
         ticker: 'AAPL',
         multiplier: '1',
@@ -23,9 +26,16 @@ const GetData = (props) => {
     })
 
     const [chartData, setChartData] = useState(null)
+    useEffect(() => {
+        handleGetChartData()
+    }, [userInput])
+
     const handleGetChartData = async () => {
-        const { dispatch } = props
-        setChartData(await dispatch(handleLoadChartData(userInput)))
+        const response = await getChartData(userInput)
+        if(response.status !== 'ERROR'){
+            setChartData(response)
+            setLoading(false)
+        }
     }
 
     function handleChange(e) {
@@ -109,24 +119,29 @@ const GetData = (props) => {
                 >
                     Show Details
                 </button>
-                <button
+                {/* <button
                     className='btn btn-success'
                     type='submit'
                     onClick={() => handleGetChartData()}
                 // disabled={this.diableGetData() ? true : false}
                 >
                     Show Data
-                </button>
+                </button> */}
             </div>
-            <div>
+            {/* <div>
                 {
                     !chartData
                         ? null
                         : <pre>{JSON.stringify(chartData, null, 2)}</pre>
                 }
+            </div> */}
+            <div>
+                {loading
+                    ? <div>Loading...</div>
+                    : <CandleStickChart chartData={chartData} />}
             </div>
         </div >
     )
 }
 
-export default connect()(GetData)
+export default GetData
