@@ -7,8 +7,7 @@ import { pypl } from './pypl'
 import { tsla } from './tsla'
 import { zm } from './zm'
 
-
-export default [
+export const database = [
     aapl,
     fdx,
     izea,
